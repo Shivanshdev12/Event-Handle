@@ -28,6 +28,18 @@ return{
         data.allItems.des.push(newItem);
         return newItem;
     },
+    deleteItem:function(id)
+    {
+        var ids=data.allItems.des.map(function(current)
+        {
+            return current.id;
+        });
+        index=ids.indexOf(id);
+        if(index  !== -1)
+        {
+            data.allItems.des.splice(index,1);
+        }
+    },
     testing:function()
     {
         console.log(data);
@@ -43,7 +55,8 @@ var UIController=(function(){
     {
         inputDescription:'.add__description',
         inputbtn:'.add__btn',
-        eventList:'.event__list'
+        eventList:'.event__list',
+        start:'.start'
     };
 
 return {
@@ -67,18 +80,22 @@ return {
 
         document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
     },
+    deleteListItems:function(selectorID)
+    {
+        var el=document.getElementById(selectorID);
+        el.parentNode.removeChild(el);
+    },
     clearField:function()
     {
 
-        var field=document.querySelector(DOMStrings.inputDescription);
+        var field=document.querySelectorAll(DOMStrings.inputDescription);
         var fieldsarr=Array.prototype.slice.call(field);
         
         fieldsarr.forEach(function(current,index,array){
             current.value="";
             fieldsarr[0].focus();
         });
-    },
-    
+    }, 
 };
 })();
 
@@ -92,13 +109,12 @@ var controller=(function(eventCtrl,UICtrl)
    {
     var DOM=UICtrl.getDOMStrings();
     document.querySelector(DOM.inputbtn).addEventListener('click',ctrlAddItem);
-    document.querySelector(DOM.inputbtn).addEventListener('keypress',function(event)
-    {
-        if(event.keyCode==13||event.which==13)
-        {
+    document.addEventListener('keypress', function (event) {
+        if (event.keyCode === 13 || event.which === 13) {
             ctrlAddItem();
         }
     });
+    document.querySelector(DOM.start).addEventListener('click',ctrlDeleteItem);
    }
 var ctrlAddItem=function()
 {
@@ -111,6 +127,19 @@ var ctrlAddItem=function()
      UICtrl.clearField();
      console.log(input);
      }
+}
+var ctrlDeleteItem=function()
+{
+    var itemID,splitID,ID;
+    itemID=event.target.parentNode.parentNode.parentNode.parentNode.id;
+    if(itemID)
+    {
+        splitID=itemID.split('-');
+        ID=parseInt(splitID[1]);
+
+        eventCtrl.deleteItem(ID);
+        UICtrl.deleteListItems(itemID);///
+    }
 }
 return {
     init: function () {
